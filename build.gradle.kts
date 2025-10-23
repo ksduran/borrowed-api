@@ -1,0 +1,32 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ktor)
+}
+
+group = "com.kevinduran"
+version = "0.0.1"
+
+application {
+    mainClass = "io.ktor.server.netty.EngineMain"
+}
+
+dependencies {
+
+    implementation(libs.firebase.admin)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.mysql.connector.java)
+    implementation(libs.serialization.kotlinx.json)
+    implementation(libs.server.content.negotiation)
+    implementation(libs.zaxxer.hikari.cp)
+
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.logback.classic)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.config.yaml)
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.kotlin.test.junit)
+}
