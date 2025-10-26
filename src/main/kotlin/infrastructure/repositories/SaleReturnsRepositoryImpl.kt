@@ -12,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.io.File
 
 class SaleReturnsRepositoryImpl : SaleReturnsRepository {
     override fun getBatch(
@@ -51,6 +52,15 @@ class SaleReturnsRepositoryImpl : SaleReturnsRepository {
     override fun deleteBatch(license: String, returns: List<SaleReturn>) {
         if (returns.isEmpty()) return
         transaction {
+            returns.forEach { saleReturn ->
+                if (saleReturn.imagePath.isNotBlank()) {
+                    val file = File("/var/duran-service/borrowed/$license/returns/", saleReturn.imagePath)
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                }
+            }
+
             val uuids = returns.map { it.uuid }
             SaleReturns.deleteWhere { SaleReturns.uuid inList uuids }
         }

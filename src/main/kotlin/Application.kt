@@ -20,6 +20,7 @@ import com.kevinduran.infrastructure.services.SalesService
 import com.kevinduran.infrastructure.services.SuppliersDataService
 import com.kevinduran.infrastructure.services.SuppliersService
 import com.kevinduran.infrastructure.services.TransferPaymentsService
+import com.kevinduran.infrastructure.tasks.scheduleCleanup
 import com.kevinduran.infrastructure.tasks.schedulePendingToToday
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -63,6 +64,7 @@ fun Application.module() {
         transferPaymentsService = transferPaymentsService
     )
     schedulePendingToToday()
+    scheduleCleanup()
 }
 
 fun Application.installPlugins() {
