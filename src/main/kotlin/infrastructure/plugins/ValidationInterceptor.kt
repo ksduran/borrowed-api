@@ -15,10 +15,11 @@ class ValidationInterceptor(private val licenseService: LicenseService) {
     suspend fun intercept(context: PipelineContext<Unit, PipelineCall>) {
         val call = context.call
         val path = call.request.path()
+        println(path)
 
-        val excludedPaths = listOf("/health", "/licenses")
+        val excludedPaths = listOf("/health", "/licenses", "/files")
         if (excludedPaths.any { excluded ->
-                path == excluded || path.startsWith("$excluded/")
+                path == excluded || path.startsWith("${excluded}/")
             }) return
 
         val licenseCode = call.request.headers["X-License-Code"]
@@ -27,7 +28,7 @@ class ValidationInterceptor(private val licenseService: LicenseService) {
         if (licenseCode == null || packageName == null) {
             call.respond(
                 HttpStatusCode.BadRequest,
-                mapOf("error" to "Headers X-License-Code and X-Package-Name are required")
+                mapOf("Denied" to "You do not have privileges to view this information")
             )
             context.finish()
             return
@@ -41,7 +42,7 @@ class ValidationInterceptor(private val licenseService: LicenseService) {
             call.respond(
                 HttpStatusCode.Forbidden,
                 mapOf(
-                    "error" to "Invalid license"
+                    "Denied" to "Invalid credentials"
                 )
             )
             context.finish()

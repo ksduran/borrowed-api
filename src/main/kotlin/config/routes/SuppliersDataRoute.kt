@@ -2,9 +2,9 @@ package com.kevinduran.config.routes
 
 import com.kevinduran.domain.models.SupplierData
 import com.kevinduran.infrastructure.reponse.ApiResponse
-import com.kevinduran.infrastructure.services.MessageSenderService
 import com.kevinduran.infrastructure.services.SuppliersDataService
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -16,10 +16,27 @@ import kotlinx.serialization.json.Json
 fun Route.suppliersDataRoute(service: SuppliersDataService) {
     route("/suppliers-data") {
         get {
-            val license = call.request.headers["X-License-Code"]!!
-            val lastSync = call.request.queryParameters["lastSync"]?.toLong() ?: 0L
-            val result = service.getBatch(license, lastSync)
-            call.respond(result)
+            try {
+                val license = call.request.headers["X-License-Code"]!!
+                val result = service.getBatch(license)
+                call.respond(result)
+            } catch (e: Exception) {
+                call.respond(ApiResponse(false, "Error: ${e.message}"))
+            }
+        }
+
+        post("/bulkDelete") {
+            try {
+                val license = call.request.headers["X-License-Code"]!!
+                val data = call.receive<List<SupplierData>>()
+                service.deleteBatch(license, data)
+                call.respond(
+                    HttpStatusCode.Created,
+                    ApiResponse(true, "Deleted successfully")
+                )
+            } catch (e: Exception) {
+                call.respond(ApiResponse(false, "Error: ${e.message}"))
+            }
         }
 
         post {
@@ -35,8 +52,6 @@ fun Route.suppliersDataRoute(service: SuppliersDataService) {
                     return@post
                 }
                 service.putBatch(license, data)
-                val msg = mapOf("type" to "suppliers")
-                MessageSenderService.sendToTopic(license, msg)
                 call.respond(
                     HttpStatusCode.Created,
                     ApiResponse(true, "Saved successfully")

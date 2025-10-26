@@ -2,7 +2,6 @@ package com.kevinduran.config.routes
 
 import com.kevinduran.domain.models.ProductEntry
 import com.kevinduran.infrastructure.reponse.ApiResponse
-import com.kevinduran.infrastructure.services.MessageSenderService
 import com.kevinduran.infrastructure.services.ProductEntriesService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -16,10 +15,27 @@ fun Route.productEntriesRoute(service: ProductEntriesService) {
     route("/product-entries") {
 
         get {
-            val license = call.request.headers["X-License-Code"]!!
-            val lastSync = call.request.queryParameters["last-sync"]?.toLong() ?: 0L
-            val result = service.getBatch(license, lastSync)
-            call.respond(result)
+            try {
+                val license = call.request.headers["X-License-Code"]!!
+                val result = service.getBatch(license)
+                call.respond(result)
+            } catch (e: Exception) {
+                call.respond(ApiResponse(false, "Error: ${e.message}"))
+            }
+        }
+
+        post("/bulkDelete") {
+            try {
+                val license = call.request.headers["X-License-Code"]!!
+                val entries = call.receive<List<ProductEntry>>()
+                service.deleteBatch(license, entries)
+                call.respond(
+                    HttpStatusCode.Created,
+                    ApiResponse(true, "Deleted successfully")
+                )
+            } catch (e: Exception) {
+                call.respond(ApiResponse(false, "Error: ${e.message}"))
+            }
         }
 
         post {
@@ -27,8 +43,6 @@ fun Route.productEntriesRoute(service: ProductEntriesService) {
                 val license = call.request.headers["X-License-Code"]!!
                 val entries = call.receive<List<ProductEntry>>()
                 service.putBatch(license, entries)
-                val data = mapOf("type" to "productEntries")
-                MessageSenderService.sendToTopic(license, data)
                 call.respond(
                     HttpStatusCode.Created,
                     ApiResponse(true, "Saved successfully")

@@ -1,7 +1,6 @@
 package com.kevinduran
 
 import com.kevinduran.config.database.DatabaseConfig
-import com.kevinduran.config.firebase.configureMessaging
 import com.kevinduran.infrastructure.plugins.configureValidation
 import com.kevinduran.infrastructure.repositories.EmployeesRepositoryImpl
 import com.kevinduran.infrastructure.repositories.LicenseRepositoryImpl
@@ -10,6 +9,7 @@ import com.kevinduran.infrastructure.repositories.ProductsRepositoryImpl
 import com.kevinduran.infrastructure.repositories.SaleReturnsRepositoryImpl
 import com.kevinduran.infrastructure.repositories.SalesRepositoryImpl
 import com.kevinduran.infrastructure.repositories.SuppliersDataRepositoryImpl
+import com.kevinduran.infrastructure.repositories.SuppliersRepositoryImpl
 import com.kevinduran.infrastructure.repositories.TransferPaymentsRepositoryImpl
 import com.kevinduran.infrastructure.services.EmployeesService
 import com.kevinduran.infrastructure.services.LicenseService
@@ -18,7 +18,9 @@ import com.kevinduran.infrastructure.services.ProductsService
 import com.kevinduran.infrastructure.services.SaleReturnsService
 import com.kevinduran.infrastructure.services.SalesService
 import com.kevinduran.infrastructure.services.SuppliersDataService
+import com.kevinduran.infrastructure.services.SuppliersService
 import com.kevinduran.infrastructure.services.TransferPaymentsService
+import com.kevinduran.infrastructure.tasks.schedulePendingToToday
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -34,6 +36,7 @@ fun Application.module() {
     val licenseRepository = LicenseRepositoryImpl()
     val employeesRepository = EmployeesRepositoryImpl()
     val productsRepository = ProductsRepositoryImpl()
+    val suppliersRepository = SuppliersRepositoryImpl()
     //services
     val licenseService = LicenseService(licenseRepository)
     val employeesService = EmployeesService(employeesRepository)
@@ -42,10 +45,10 @@ fun Application.module() {
     val saleReturnsService = SaleReturnsService(SaleReturnsRepositoryImpl())
     val salesService = SalesService(SalesRepositoryImpl())
     val suppliersDataService = SuppliersDataService(SuppliersDataRepositoryImpl())
+    val suppliersService = SuppliersService(suppliersRepository)
     val transferPaymentsService = TransferPaymentsService(TransferPaymentsRepositoryImpl())
 
     DatabaseConfig.init(environment.config)
-    configureMessaging()
     installPlugins()
     configureValidation(licenseService)
     configureRouting(
@@ -56,8 +59,10 @@ fun Application.module() {
         saleReturnsService = saleReturnsService,
         salesService = salesService,
         suppliersDataService = suppliersDataService,
+        suppliersService = suppliersService,
         transferPaymentsService = transferPaymentsService
     )
+    schedulePendingToToday()
 }
 
 fun Application.installPlugins() {
@@ -65,3 +70,4 @@ fun Application.installPlugins() {
         json()
     }
 }
+

@@ -7,18 +7,19 @@ import com.kevinduran.infrastructure.mappers.toSupplierData
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class SuppliersDataRepositoryImpl : SuppliersDataRepository {
     override fun getBatch(
-        license: String,
-        lastSync: Long
+        license: String
     ): List<SupplierData> {
         return transaction {
             SuppliersData.selectAll().where {
-                (SuppliersData.license eq license) and (SuppliersData.updatedAt greaterEq lastSync)
+                (SuppliersData.license eq license)
             }.map { it.toSupplierData() }
         }
     }
@@ -49,6 +50,14 @@ class SuppliersDataRepositoryImpl : SuppliersDataRepository {
                     this[SuppliersData.createdAt] = sData.createdAt
                 }
             )
+        }
+    }
+
+    override fun deleteBatch(license: String, data: List<SupplierData>) {
+        if (data.isEmpty()) return
+        transaction {
+            val uuids = data.map { it.uuid }
+            SuppliersData.deleteWhere { SuppliersData.uuid inList uuids }
         }
     }
 }

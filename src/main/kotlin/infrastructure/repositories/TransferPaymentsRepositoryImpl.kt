@@ -7,18 +7,19 @@ import com.kevinduran.infrastructure.mappers.toTransferPayment
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class TransferPaymentsRepositoryImpl : TransferPaymentsRepository {
     override fun getBatch(
-        license: String,
-        lastSync: Long
+        license: String
     ): List<TransferPayment> {
         return transaction {
             TransferPayments.selectAll().where {
-                (TransferPayments.license eq license) and (TransferPayments.updatedAt greaterEq lastSync)
+                (TransferPayments.license eq license)
             }.map { it.toTransferPayment() }
         }
     }
@@ -46,4 +47,13 @@ class TransferPaymentsRepositoryImpl : TransferPaymentsRepository {
             )
         }
     }
+
+    override fun deleteBatch(license: String, payments: List<TransferPayment>) {
+        if (payments.isEmpty()) return
+        transaction {
+            val uuids = payments.map { it.uuid }
+            TransferPayments.deleteWhere { TransferPayments.uuid inList uuids }
+        }
+    }
+
 }

@@ -14,8 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class EmployeesRepositoryImpl : EmployeesRepository {
     override fun getBatch(
-        license: String,
-        lastSync: Long
+        license: String
     ): List<Employee> {
         return transaction {
             Employees.selectAll().where {

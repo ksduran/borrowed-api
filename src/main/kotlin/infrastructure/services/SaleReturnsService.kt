@@ -5,9 +5,12 @@ import com.kevinduran.domain.repositories.SaleReturnsRepository
 
 class SaleReturnsService(private val repository: SaleReturnsRepository) {
 
-    fun getBatch(license: String, lastSync: Long): List<SaleReturn> =
-        repository.getBatch(license, lastSync)
+    fun getBatch(license: String): List<SaleReturn> =
+        repository.getBatch(license)
 
     fun putBatch(license: String, returns: List<SaleReturn>) = repository.putBatch(license, returns)
+
+    fun deleteBatch(license: String, returns: List<SaleReturn>) =
+        repository.deleteBatch(license, returns)
 
 }

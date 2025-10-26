@@ -13,7 +13,6 @@ application {
 
 dependencies {
 
-    implementation(libs.firebase.admin)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.dao)

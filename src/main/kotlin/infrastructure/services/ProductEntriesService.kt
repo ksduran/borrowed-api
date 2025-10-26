@@ -5,10 +5,13 @@ import com.kevinduran.domain.repositories.ProductEntriesRepository
 
 class ProductEntriesService(private val repository: ProductEntriesRepository) {
 
-    fun getBatch(license: String, lastSync: Long): List<ProductEntry> =
-        repository.getBatch(license, lastSync)
+    fun getBatch(license: String): List<ProductEntry> =
+        repository.getBatch(license)
 
     fun putBatch(license: String, entries: List<ProductEntry>) =
         repository.putBatch(license, entries)
+
+    fun deleteBatch(license: String, entries: List<ProductEntry>) =
+        repository.deleteBatch(license, entries)
 
 }

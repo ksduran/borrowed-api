@@ -7,18 +7,19 @@ import com.kevinduran.infrastructure.mappers.toProduct
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class ProductsRepositoryImpl : ProductsRepository {
     override fun getBatch(
-        license: String,
-        lastSync: Long
+        license: String
     ): List<Product> {
         return transaction {
             Products.selectAll().where {
-                (Products.license eq license) and (Products.updatedAt greaterEq lastSync)
+                (Products.license eq license)
             }.map { it.toProduct() }
         }
     }
@@ -49,6 +50,14 @@ class ProductsRepositoryImpl : ProductsRepository {
                     this[Products.createdAt] = product.createdAt
                 }
             )
+        }
+    }
+
+    override fun deleteBatch(license: String, products: List<Product>) {
+        transaction {
+            if (products.isEmpty()) return@transaction
+            val uuids = products.map { it.uuid }
+            Products.deleteWhere { Products.uuid inList uuids }
         }
     }
 }
