@@ -7,6 +7,7 @@ data class Supplier(
     val uuid: String,
     val license: String,
     val name: String,
+    val debtControl: Int,
     val syncStatus: Int,
     val deleted: Int,
     val raisedBy: String,

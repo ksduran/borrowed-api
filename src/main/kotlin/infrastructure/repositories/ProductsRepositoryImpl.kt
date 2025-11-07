@@ -4,12 +4,13 @@ import com.kevinduran.config.database.tables.Products
 import com.kevinduran.domain.models.Product
 import com.kevinduran.domain.repositories.ProductsRepository
 import com.kevinduran.infrastructure.mappers.toProduct
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.io.File
@@ -21,7 +22,9 @@ class ProductsRepositoryImpl : ProductsRepository {
         return transaction {
             Products.selectAll().where {
                 (Products.license eq license)
-            }.map { it.toProduct() }
+            }
+                .orderBy(Products.createdAt, SortOrder.DESC)
+                .map { it.toProduct() }
         }
     }
 
@@ -51,6 +54,17 @@ class ProductsRepositoryImpl : ProductsRepository {
                     this[Products.createdAt] = product.createdAt
                 }
             )
+        }
+    }
+
+    override fun getById(
+        license: String,
+        id: String
+    ): Product? {
+        return transaction {
+            Products.select(Products.columns).where {
+                (Products.license eq license) and (Products.uuid eq id)
+            }.single().toProduct()
         }
     }
 

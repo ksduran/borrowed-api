@@ -8,6 +8,7 @@ fun ResultRow.toSupplier() = Supplier(
     uuid = this[Suppliers.uuid],
     license = this[Suppliers.license],
     name = this[Suppliers.name],
+    debtControl = this[Suppliers.debtControl],
     syncStatus = this[Suppliers.syncStatus],
     deleted = this[Suppliers.deleted],
     raisedBy = this[Suppliers.raisedBy],

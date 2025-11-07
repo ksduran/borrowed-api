@@ -36,6 +36,7 @@ class SuppliersRepositoryImpl : SuppliersRepository {
                     this[Suppliers.uuid] = supplier.uuid
                     this[Suppliers.license] = supplier.license
                     this[Suppliers.name] = supplier.name
+                    this[Suppliers.debtControl] = supplier.debtControl
                     this[Suppliers.syncStatus] = supplier.syncStatus
                     this[Suppliers.deleted] = supplier.deleted
                     this[Suppliers.raisedBy] = supplier.raisedBy

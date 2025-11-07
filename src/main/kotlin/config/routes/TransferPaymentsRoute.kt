@@ -16,13 +16,9 @@ import kotlinx.serialization.json.Json
 fun Route.transferPaymentsRoute(service: TransferPaymentsService) {
     route("/transfer-payments") {
         get {
-            try {
-                val license = call.request.headers["X-License-Code"]!!
-                val result = service.getBatch(license)
-                call.respond(result)
-            } catch (e: Exception) {
-                call.respond(ApiResponse(false, "Error: ${e.message}"))
-            }
+            val license = call.request.headers["X-License-Code"]!!
+            val result = service.getBatch(license)
+            call.respond(result)
         }
 
         post("/bulkDelete") {

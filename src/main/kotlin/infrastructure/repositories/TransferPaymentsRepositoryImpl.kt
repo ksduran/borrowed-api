@@ -4,9 +4,8 @@ import com.kevinduran.config.database.tables.TransferPayments
 import com.kevinduran.domain.models.TransferPayment
 import com.kevinduran.domain.repositories.TransferPaymentsRepository
 import com.kevinduran.infrastructure.mappers.toTransferPayment
-import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -21,7 +20,9 @@ class TransferPaymentsRepositoryImpl : TransferPaymentsRepository {
         return transaction {
             TransferPayments.selectAll().where {
                 (TransferPayments.license eq license)
-            }.map { it.toTransferPayment() }
+            }
+                .orderBy(TransferPayments.createdAt, SortOrder.DESC)
+                .map { it.toTransferPayment() }
         }
     }
 
@@ -54,7 +55,8 @@ class TransferPaymentsRepositoryImpl : TransferPaymentsRepository {
         transaction {
             payments.forEach { payment ->
                 if (payment.imagePath.isNotBlank()) {
-                    val file = File("/var/duran-service/borrowed/$license/payments/", payment.imagePath)
+                    val file =
+                        File("/var/duran-service/borrowed/$license/payments/", payment.imagePath)
                     if (file.exists()) {
                         file.delete()
                     }

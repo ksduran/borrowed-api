@@ -1,16 +1,11 @@
 package com.kevinduran.config.routes
 
 import com.kevinduran.infrastructure.reponse.ApiResponse
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
-import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import java.io.File
 
 fun Route.storageRoutes() {
@@ -87,6 +82,7 @@ private suspend fun RoutingContext.uploadImageByType(
         )
     } catch (e: Exception) {
         call.respond(
+            status = HttpStatusCode.BadRequest,
             ApiResponse(false, "Error: ${e.message}")
         )
     }

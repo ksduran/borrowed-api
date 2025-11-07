@@ -4,9 +4,8 @@ import com.kevinduran.config.database.tables.SuppliersData
 import com.kevinduran.domain.models.SupplierData
 import com.kevinduran.domain.repositories.SuppliersDataRepository
 import com.kevinduran.infrastructure.mappers.toSupplierData
-import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -20,7 +19,7 @@ class SuppliersDataRepositoryImpl : SuppliersDataRepository {
         return transaction {
             SuppliersData.selectAll().where {
                 (SuppliersData.license eq license)
-            }.map { it.toSupplierData() }
+            }.orderBy(SuppliersData.createdAt, SortOrder.DESC).map { it.toSupplierData() }
         }
     }
 

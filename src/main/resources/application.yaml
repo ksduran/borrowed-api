@@ -10,3 +10,5 @@ ktor:
     url: "jdbc:mysql://localhost:3306/borrowed"
     user: "ksduran"
     password: "K2v3n1115743234.D5r1n"
+  discord:
+    web_hook: "https://discord.com/api/webhooks/1423050282732093542/jaFI1SDHsIh2M-YZAvBAFalLGeJB6XWpajaYXF3oN53YveE_lRg4zdi4EiiRvSYZP45G"

@@ -4,9 +4,8 @@ import com.kevinduran.config.database.tables.SaleReturns
 import com.kevinduran.domain.models.SaleReturn
 import com.kevinduran.domain.repositories.SaleReturnsRepository
 import com.kevinduran.infrastructure.mappers.toSaleReturn
-import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.batchUpsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -21,7 +20,9 @@ class SaleReturnsRepositoryImpl : SaleReturnsRepository {
         return transaction {
             SaleReturns.selectAll().where {
                 (SaleReturns.license eq license)
-            }.map { it.toSaleReturn() }
+            }
+                .orderBy(SaleReturns.createdAt, SortOrder.DESC)
+                .map { it.toSaleReturn() }
         }
     }
 
@@ -54,7 +55,8 @@ class SaleReturnsRepositoryImpl : SaleReturnsRepository {
         transaction {
             returns.forEach { saleReturn ->
                 if (saleReturn.imagePath.isNotBlank()) {
-                    val file = File("/var/duran-service/borrowed/$license/returns/", saleReturn.imagePath)
+                    val file =
+                        File("/var/duran-service/borrowed/$license/returns/", saleReturn.imagePath)
                     if (file.exists()) {
                         file.delete()
                     }

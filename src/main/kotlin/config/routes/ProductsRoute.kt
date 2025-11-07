@@ -24,6 +24,18 @@ fun Route.productsRoutes(service: ProductsService) {
             }
         }
 
+        get("/{id}") {
+            val license = call.request.headers["X-License-Code"]!!
+            val id = call.parameters["id"] ?: return@get call.respond(
+                ApiResponse(
+                    false,
+                    "Id is required"
+                )
+            )
+            val result = service.getById(license, id)
+            call.respond(result ?: ApiResponse(false, "Product not found"))
+        }
+
         post("/bulkDelete") {
             try {
                 val license = call.request.headers["X-License-Code"]!!
